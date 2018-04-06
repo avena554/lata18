@@ -10,6 +10,7 @@
 \usepackage{array}
 \usepackage{tikz}
 \usetikzlibrary{positioning, backgrounds, shapes, chains, decorations.pathmorphing}
+\usepackage{forest}
 \usepackage{amsmath,amsthm,amssymb}  
 \usepackage{stmaryrd}
 %\usepackage{mdsymbol}
@@ -22,7 +23,8 @@
 
 \useoutertheme{infolines}
 
-\newcommand{\hidden}[1]{}
+\input{macros}
+\renewcommand{\hidden}[1]{}
 
 %colors
 \definecolor{darkgreen}{rgb}{0,0.5,0}
@@ -51,39 +53,821 @@
 \maketitle
 
 
-\section{Introduction: the translation problem.}
+\section{Introduction}
 
 \begin{frame}
-  \frametitle{What this talk is about -- Bimorphisms}
+  \frametitle{What this talk is about -- Bimorphisms and IRTG}
   \begin{itemize}
-  \item \textbf{Bimorphisms} offer a convenient and succint way to define relation/transformations between trees.
-  \item Model syntax-based relations between objects.
-  \item Idea: two trees are related if both are images of a third \textbf{derivation} tree, under two distinct homomorphisms.
-  \item admissible derivation trees are compactly specified as a regular tree language. 
+  \item \textbf{Bimorphisms} offer a succint way to represent relation between trees.
+  %\item Model syntax-based relations between objects.
+  \item Two trees are related when both are homomorphic images of a common third one under two fixed distinct homomorphisms.
+  %\item Admissible derivation trees are compactly specified as a regular tree language.
+  \item Interpreting tree nodes as algebraic operations, one can represent relations between objects of arbitrary nature.
+  \item This yields \textbf{IRTG}s -- Interpreted Regular Tree Grammars.
+  \item IRTGs offer a common theoretical foundation to a wide range of grammatic formalisms relevant to Computational Linguistics.
   \end{itemize}
 \end{frame}
 
+\begin{frame}
+  \frametitle{The program.}
+  \begin{itemize}
+  \item The image of a regular language through a bimorphism can be computed.
+  \item \alert{But how efficiently can this be done, w.r.t. different shapes of homomorphisms?}
+  \item Also forms the basis of a generic 2-step algorithm to translate an input object using an IRTG:
+    \begin{enumerate}
+    \item Find the set of algebraic decompositions of the input object.
+    \item Translate this set of decompositions through the underlying bimorphism.
+    \end{enumerate}
+  \item \alert{step 1. is the algebra-dependent part. Can step 2 add to the general complexity of translating?}
+  \item We answer these questions for the class of bimorphisms with \emph{linear} homomorphisms over \emph{binary} signatures.
+  \end{itemize}
+\end{frame}
+
+\section{Bimorphisms, IRTG and translation.}
+
+\begin{frame}
+  \frametitle{An example grammar and derivation.}
+  \begin{center}
+    \begin{minipage}{0.49\linewidth}
+    \[
+    \overbrace{
+      \begin{aligned}
+        &E \rightarrow r_{a}(E,E) \quad E \rightarrow r_{m}(E,E)\\
+        &E \rightarrow 1 \mid \dots \mid n\\
+    \end{aligned}}^{G}
+    \]
+    \end{minipage}
+    \begin{minipage}{0.49\linewidth}
+      \begin{forest}
+        [$r_{m}$ [ $r_{a}$ [$1$] [$2$]]  [$3$] ]
+      \end{forest}
+    \end{minipage}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{An example bimorphism and IRTG.}
+    \begin{center}
+      \begin{tabular}{cc}
+        %$h_1$ & $h_2$\\ 
+        $
+        \begin{aligned}
+          & r_a(x_1, x_2) \mapsto^{h_1} \cdot(\texttt{v}, \cdot(\cdot(\cdot(x_1, {+}), x_2) , \texttt{v}))\\
+          & r_m(x_1, x_2)) \mapsto^{h_1} \cdot(\cdot(x_1, {\times}), x_2)\\
+          & i \rightarrow i
+        \end{aligned}
+        $ 
+        &
+        $
+        \begin{aligned}
+          & r_a(x_1, x_2) \mapsto^{h_2} \texttt{add}(x_1, x_2)\\
+          & r_m(x_1, x_2) \mapsto^{h_2} \texttt{mul}(x_1, x_2)\\
+          & i \rightarrow i
+        \end{aligned}
+        $
+        \\
+      \end{tabular}\\\vspace{1pt}
+      
+      \fontsize{6}{7}      
+      \begin{minipage}{0.1\linewidth}
+        $\texttt{v} 1 + 2\texttt{v} \times 3$
+      \end{minipage}
+    $\xleftarrow{\llbracket \cdot \rrbracket_{\Sigma^{\ast}}}$
+    \begin{minipage}{0.18\linewidth}
+	      \centering
+	      \begin{forest}
+      	      [$\cdot$, blue [$\cdot$, blue, edge=blue [ $\cdot$, red, edge=blue [ \texttt{v}, red, edge=red ] [$\cdot$, red, edge=red [$\cdot$, red, edge=red [$\cdot$, red, edge=red [1, edge=red] [+, red, edge=red]] [2, edge=red] ] [\texttt{v}, red, edge=red] ]  ] [ $\times$, blue, edge=blue] ] [3, edge=blue] ]
+           \end{forest}
+      \end{minipage}
+      $\xleftarrow{h_1}$      
+	  \begin{minipage}{0.1\linewidth}
+		  \centering
+		  \begin{forest}
+		    [$r_{m}$, blue [ $r_{a}$, red, edge=blue [$1$, edge=red] [$2$, edge=red] ] [$3$, edge=blue] ] 
+		  \end{forest}
+	  \end{minipage}
+      $\xrightarrow{h_2}$
+      \begin{minipage}{0.18\linewidth}
+      	\centering
+      	\begin{forest}
+      		[\texttt{mul}, blue [ \texttt{add},red, edge=blue [$1$, edge=red] [$2$, edge=red] ]  [$3$, edge=blue] ]
+      	\end{forest}
+      \end{minipage}
+      $\xrightarrow{\llbracket \cdot \rrbracket_{\mathbb{N}}}$
+      \begin{minipage}{0.05\linewidth}
+      	\centering
+      	$9$
+      \end{minipage}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Translation problems}
+
+  \begin{block}{For a bimorphism $\langle G, h_1, h_2 \rangle$}
+    Given as input a finite tree automaton (FTA) $F$, compute (a compact representation of)
+    \[ \{ \langle h_1(t), h_2(t) \rangle \mid t \in L(G) \textnormal{ and } h_1(t) \in L(F) \} \]
+  \end{block}
+  \begin{itemize}
+  \item Solve this by computing an automaton recognizing \[h_1^{-1}(L(F)) \cap L(G)\].
+  \item \alert{How expensive is computing $h_1^{-1}(F)$ (Invhom problem)?}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Translation problems (cont'd)}
+  \begin{block}{For an IRTG $\langle G, h_1, h_2, \mathcal{A}_1 \triangleeq \langle D_1, \llbracket \cdot \rrbracket_1 \rangle , \mathcal{A}_2 \triangleeq \langle D_2, \llbracket \cdot \rrbracket_2 \rangle  \rangle$}
+    Given as input an object $o \in D_1$, compute (a compact representation of)
+    \[ \{ \langle \llbracket h_1(t) \rrbracket_1, \llbracket h_2(t) \rrbracket_2 \rangle \mid t \in L(G) \textnormal{ and } \llbracket h_1(t) \rrbracket_1 = o \} \]
+  \end{block}
+  \begin{itemize}
+  \item Solve this in two steps:
+    \begin{enumerate}
+    \item (assuming feasible) compute a decomposition automaton $D_o$ recognizing $\{ t \mid \llbracket t \rrbracket_1 = o \}$
+    \item Solve the translation problem for $\langle G, h_1, h_2 \rangle$ over $D_o$.
+    \end{enumerate}
+  \item  \alert{Can we express the complexity of this procedure in terms of $|D_o|$ only?}
+  \item Parsing and recognazibility problems definable and reducible to translation.
+  \end{itemize}
+
+  
+\end{frame}
+
+\section{Cost of the invhom.}
+
+\begin{frame}
+  \frametitle{Reminder}
+    \begin{center}
+      \begin{tabular}{cc}
+        %$h_1$ & $h_2$\\ 
+        $
+        \begin{aligned}
+          & r_a(x_1, x_2) \mapsto^{h_1} \cdot(\texttt{v}, \cdot(\cdot(\cdot(x_1, {+}), x_2) , \texttt{v}))\\
+          & r_m(x_1, x_2)) \mapsto^{h_1} \cdot(\cdot(x_1, {\times}), x_2)\\
+          & i \rightarrow i
+        \end{aligned}
+        $ 
+        &
+        $
+        \begin{aligned}
+          & r_a(x_1, x_2) \mapsto^{h_2} \texttt{add}(x_1, x_2)\\
+          & r_m(x_1, x_2) \mapsto^{h_2} \texttt{mul}(x_1, x_2)\\
+          & i \rightarrow i
+        \end{aligned}
+        $
+        \\
+      \end{tabular}\\\vspace{1pt}
+      
+      \fontsize{6}{7}      
+      \begin{minipage}{0.1\linewidth}
+        $\texttt{v} 1 + 2\texttt{v} \times 3$
+      \end{minipage}
+    $\xleftarrow{\llbracket \cdot \rrbracket_{\Sigma^{\ast}}}$
+    \begin{minipage}{0.18\linewidth}
+	      \centering
+	      \begin{forest}
+      	      [$\cdot$, blue [$\cdot$, blue, edge=blue [ $\cdot$, red, edge=blue [ \texttt{v}, red, edge=red ] [$\cdot$, red, edge=red [$\cdot$, red, edge=red [$\cdot$, red, edge=red [1, edge=red] [+, red, edge=red]] [2, edge=red] ] [\texttt{v}, red, edge=red] ]  ] [ $\times$, blue, edge=blue] ] [3, edge=blue] ]
+           \end{forest}
+      \end{minipage}
+      $\xleftarrow{h_1}$      
+	  \begin{minipage}{0.1\linewidth}
+		  \centering
+		  \begin{forest}
+		    [$r_{m}$, blue [ $r_{a}$, red, edge=blue [$1$, edge=red] [$2$, edge=red] ] [$3$, edge=blue] ] 
+		  \end{forest}
+	  \end{minipage}
+      $\xrightarrow{h_2}$
+      \begin{minipage}{0.18\linewidth}
+      	\centering
+      	\begin{forest}
+      		[\texttt{mul}, blue [ \texttt{add},red, edge=blue [$1$, edge=red] [$2$, edge=red] ]  [$3$, edge=blue] ]
+      	\end{forest}
+      \end{minipage}
+      $\xrightarrow{\llbracket \cdot \rrbracket_{\mathbb{N}}}$
+      \begin{minipage}{0.05\linewidth}
+      	\centering
+      	$9$
+      \end{minipage}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The invhom problem.}
+
+  \begin{itemize}
+  \item Going back to the minimal 'arithmetic' bimorphism.
+  \item Consider $F$ with axiom $S$ and $O(n)$ rules:
+    \[
+    \begin{aligned}
+      & S \rightarrow \cdot(Y, N_i) \quad (i \in [1,n])\\
+      & Y \rightarrow \cdot(N_i, M) \quad (i \in [1,n])\\
+      & M \rightarrow \times\\
+      & N_i \rightarrow i \quad (i \in [1,n])\\ 
+    \end{aligned}    
+    \]
+    ($\llbracket L(F) \rrbracket_{\Sigma^\ast}$ is the set of strings of the form $i \times j$ for some $0 \le i,j \le n $).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The invhom problem (cont'd)}
+  \[
+    \begin{aligned}
+      & S \rightarrow \cdot(Y, N_i) \quad (i \in [1,n])\\
+      & Y \rightarrow \cdot(N_i, M) \quad (i \in [1,n])\\
+      & M \rightarrow \times\\
+      & N_i \rightarrow i \quad (i \in [1,n])\\ 
+    \end{aligned}    
+    \]
+    
+    \begin{itemize}
+    \item Apply generic algorithm to compute the image of $F$ (\emph{i.e.} the set $[1, n^2]$).
+    \item Need to compute an automaton for $h_1^{-1}(L(F))$.
+    \item Standard construction (top-down): for each label $l$ in $G$ and state $X$ in $F$, run $F$ from $X$ on $h_1(l)$. If this succeeds and reaches children states $Y_1, \dots, Y_n$, add a rule $X \rightarrow l(Y_1, \dots, Y_n)$ to the invhom automaton. 
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The invhom problem (cont'd)}
+  \[
+  \begin{aligned}
+    & S \rightarrow \cdot(Y, N_i) \quad (i \in [1,n])\\
+    & Y \rightarrow \cdot(N_i, M) \quad (i \in [1,n])\\
+    & M \rightarrow \times\\
+    & N_i \rightarrow i \quad (i \in [1,n])\\ 
+  \end{aligned}    
+  \]
+
+  \begin{itemize}
+  \item Recall $r_m(x_1, x_2)) \mapsto^{h_1} \cdot(\cdot(x_1, {\times}), x_2)$.
+  \item We have $S \rightarrow^{*}_{F} \cdot(\cdot(N_i, {\times}), N_j)$ for $i,j \in [1,n]$.
+  \item Hence we add $S \rightarrow r_m(N_i, N_j)$ to the invhom for $i,j \in [1,n]$.
+  \item \alert{$O(n^2)$ rules v.s. $O(n)$ rules for $F$!}.
+  \item Still, $[1,n^2]$ can be described in the arithmetic signature with only $n$ rules, just as $F$.
+  \end{itemize}
+    
+\end{frame}
+
+\section{Normal Form}
 
 
+\begin{frame}
+  \frametitle{Reminder}
+    \begin{center}
+      \begin{tabular}{cc}
+        %$h_1$ & $h_2$\\ 
+        $
+        \begin{aligned}
+          & r_a(x_1, x_2) \mapsto^{h_1} \cdot(\texttt{v}, \cdot(\cdot(\cdot(x_1, {+}), x_2) , \texttt{v}))\\
+          & r_m(x_1, x_2)) \mapsto^{h_1} \cdot(\cdot(x_1, {\times}), x_2)\\
+          & i \rightarrow i
+        \end{aligned}
+        $ 
+        &
+        $
+        \begin{aligned}
+          & r_a(x_1, x_2) \mapsto^{h_2} \texttt{add}(x_1, x_2)\\
+          & r_m(x_1, x_2) \mapsto^{h_2} \texttt{mul}(x_1, x_2)\\
+          & i \rightarrow i
+        \end{aligned}
+        $
+        \\
+      \end{tabular}\\\vspace{1pt}
+      
+      \fontsize{6}{7}      
+      \begin{minipage}{0.1\linewidth}
+        $\texttt{v} 1 + 2\texttt{v} \times 3$
+      \end{minipage}
+    $\xleftarrow{\llbracket \cdot \rrbracket_{\Sigma^{\ast}}}$
+    \begin{minipage}{0.18\linewidth}
+	      \centering
+	      \begin{forest}
+      	      [$\cdot$, blue [$\cdot$, blue, edge=blue [ $\cdot$, red, edge=blue [ \texttt{v}, red, edge=red ] [$\cdot$, red, edge=red [$\cdot$, red, edge=red [$\cdot$, red, edge=red [1, edge=red] [+, red, edge=red]] [2, edge=red] ] [\texttt{v}, red, edge=red] ]  ] [ $\times$, blue, edge=blue] ] [3, edge=blue] ]
+           \end{forest}
+      \end{minipage}
+      $\xleftarrow{h_1}$      
+	  \begin{minipage}{0.1\linewidth}
+		  \centering
+		  \begin{forest}
+		    [$r_{m}$, blue [ $r_{a}$, red, edge=blue [$1$, edge=red] [$2$, edge=red] ] [$3$, edge=blue] ] 
+		  \end{forest}
+	  \end{minipage}
+      $\xrightarrow{h_2}$
+      \begin{minipage}{0.18\linewidth}
+      	\centering
+      	\begin{forest}
+      		[\texttt{mul}, blue [ \texttt{add},red, edge=blue [$1$, edge=red] [$2$, edge=red] ]  [$3$, edge=blue] ]
+      	\end{forest}
+      \end{minipage}
+      $\xrightarrow{\llbracket \cdot \rrbracket_{\mathbb{N}}}$
+      \begin{minipage}{0.05\linewidth}
+      	\centering
+      	$9$
+      \end{minipage}
+    \end{center}
+\end{frame}
 
-%\subsection{Translating with bimorphisms}
+\begin{frame}
+  \frametitle{Sketch of the solution.}
+  \begin{itemize}
+  \item We formalize a solution for the class of $LB$-bimorphism -- bimorphisms as above involving linear homomorphisms, with symbol of max-arity $2$.
+  \item Classically encountered in C.L.
+  \end{itemize}
+
+  
+  We build on the following:
+  \begin{enumerate}
+  \item Solutions to the translation problem are invariant through weak-equivalence $\rightarrow$ one can transform the grammar.
+  \item If all homomorphic images $h(l)$ have height at most $1$ , it is trivial that the standard construction of the invhom $h^-1(L(F))$ has at most as many rules as $F$.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Sketch of the solution (cont'd).}
+  
+  \begin{block}{Thm}
+    for every $LB$-bimorphism (resp. IRTG), there exists an $LB$-bimorphism (resp. IRTG) with same relation and in which every homomorphic images have height at most 1. 
+  \end{block}
+
+  \begin{itemize}
+  \item We call such an equivalent $LB$-bimorphism (IRTG) a truncated normal form (\textbf{TNF}).
+  \item We provide an algorithm bringing an arbitrary $LB$-bimorphism (IRTG) into TNF and prove its correctness.
+  \end{itemize}
+ 
+  
+\end{frame}
+
+\section{Bringing $LB$-bimorphisms into TNF.}
+
+\begin{frame}
+  \frametitle{Sketch}
+
+  \begin{itemize}
+  \item The procedure consists in an elementary truncation step applied until saturation.
+  \item Each truncation step targets a single homomorphism $h$ and a single label $r$.
+  \item The truncation step `splits' $r$ and into several `fresh' labels, adding corresponding rules to the grammar.
+  \item $h(r)$ is distributed over the new label thereby lessening the maximal images' height.
+  \item One need to carefully adapt other homomorphisms, to prevent modifying the translation relation.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Example -- 2 case}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Example -- 1 case}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The general picture -- 2 case}
+  \centering
+\begin{tabular}{|c|c|c|}
+\hline
+& Selected Homomorphism & Unselected Homomorphism \\
+\hline
+\parbox{0.1\textwidth}{Before} &
+\begin{minipage}{0.33 \textwidth}
+%\resizebox{1\columnwidth}{3cm}
+{
+\begin{tikzpicture}[scale=0.5, every node/.style={scale=0.5}]
+	\tikzset{decoration={snake,amplitude=1mm,segment length=5mm,
+	                       post length=1mm,pre length=1mm}}
+
+	 \node (image) at (-3,-1) {$h_1(r) =$};
+
+	 \node (root) at (0,0) {};
+	 \node (left) at (-3,-3) {};
+	 \node (right) at (3,-3) {};
+	 
+	 \node (top) at (0,-0.4) {f};
+	 \node (internalL) at (-1,-1.75) {$t_1$};
+	 \node (internalR) at (1,-1.75) {$t_2$};	  
+	 
+	 \node (lml) at (-2,-3) {};
+	 \node (lmm) at (-1.5,-2.5) {};
+	 \node (lmr) at (-1,-3) {};
+	 
+	 \node (rml) at (1,-3) {};
+	 \node (rmm) at (1.5,-2.5) {};
+	 \node (rmr) at (2,-3) {};
+	 
+	 \node (x1) at (-1.5,-3) {$x_1$};
+	 \node (x2) at (1.5,-3) {$x_2$};
+
+	\path (root.center) edge node (cutL) [near start]{} (left.center) edge node (cutR) [near start] {}  (right.center);
+	\path (left.center) edge (lml.center);
+	\path (lml.center) edge (lmm.center);
+	\path (lmm.center) edge (lmr.center);
+	\path (lmr.center) edge node (cutB) [midway] {} (rml.center);
+	\path (rml.center) edge (rmm.center);
+	\path (rmm.center) edge (rmr.center);
+	\path (rmr.center) edge (right.center);
+	\path (cutL.center) edge node (cutC) [midway] {} (cutR.center);
+	\path (cutC.center) edge (cutB.center);
+\end{tikzpicture}
+}
+\end{minipage}
+ &
+ \begin{minipage}{0.3\textwidth}
+%\resizebox{1\columnwidth}{3cm}
+{
+\begin{tikzpicture}[scale=0.5, every node/.style={scale=0.5}]
+	\tikzset{decoration={snake,amplitude=1mm,segment length=5mm,
+	                       post length=1mm,pre length=1mm}}
+
+	 \node (image) at (-3,-1) {$h_2(r) =$};
+
+	 \node (root) at (0,0) {};
+	 \node (left) at (-3,-3) {};
+	 \node (right) at (3,-3) {};
+	 
+	 \node (internalL) at (0,-1.75) {$t'$};
+	 
+	 \node (lml) at (-2,-3) {};
+	 \node (lmm) at (-1.5,-2.5) {};
+	 \node (lmr) at (-1,-3) {};
+	 
+	 \node (rml) at (1,-3) {};
+	 \node (rmm) at (1.5,-2.5) {};
+	 \node (rmr) at (2,-3) {};
+	 
+	 \node (x1) at (-1.5,-3) {$x_1$};
+	 \node (x2) at (1.5,-3) {$x_2$};
+
+	\path (root.center) edge node (cutL) [near start]{} (left.center) edge node (cutR) [near start] {}  (right.center);
+	\path (left.center) edge (lml.center);
+	\path (lml.center) edge (lmm.center);
+	\path (lmm.center) edge (lmr.center);
+	\path (lmr.center) edge node (cutB) [midway] {} (rml.center);
+	\path (rml.center) edge (rmm.center);
+	\path (rmm.center) edge (rmr.center);
+	\path (rmr.center) edge (right.center);
+\end{tikzpicture}
+}
+\end{minipage}
+\\
+\hline
+\parbox{0.1\textwidth}{After} &
+\begin{minipage}{0.33 \textwidth}
+%\resizebox{1\columnwidth}{3cm}
+{
+\begin{tikzpicture}[scale=0.5, every node/.style={scale=0.5}]
+	\tikzset{decoration={snake,amplitude=1mm,segment length=5mm,
+	                       post length=1mm,pre length=1mm}}
+
+	 \node (image) at (-3,-0.4) {$\hat{h}_1(r\up{1}) =$};
+
+	 \node (root) at (0,0) {};
+	 \node (left) at (-1.5,-1.5) {};
+	 \node (right) at (1.5,-1.5) {};
+	 
+	 \node (top) at (0,-0.4) {f};
+	 
+	 \node (lml) at (-1,-1.5) {};
+	 \node (lmm) at (-0.5,-1) {};
+	 \node (lmr) at (0,-1.5) {};
+	 
+	 \node (rml) at (0,-1.5) {};
+	 \node (rmm) at (0.5,-1) {};
+	 \node (rmr) at (1,-1.5) {};
+	 
+	 \node (x1) at (-0.5,-1) {$x_1$};
+	 \node (x2) at (0.5,-1) {$x_2$};
+	 
+	 \path (top) edge (x1) edge (x2); 
+
+	%\path (root.center) edge node (cutL) [near start]{} (left.center) edge node (cutR) [near start] {}  (right.center);
+	%\path (left.center) edge (lml.center);
+	%\path (lml.center) edge (lmm.center);
+	%\path (lmm.center) edge (lmr.center);
+	%\path (rml.center) edge (rmm.center);
+	%\path (rmm.center) edge (rmr.center);
+	%\path (rmr.center) edge (right.center);
+	%\path (lmr.center) edge (rml.center);
+	
+	\node (lcRoot) at (-0.5,-1.3) {};
+	\node (lcLeft)  at (-3.3,-2.8) {};
+	\node (lcRight)  at (-0.5,-2.8) {};
+	
+	\node (lcml) at (-1.8,-2.8) {};
+	\node (lcmm) at (-1.3,-2.3) {};
+	\node (lcmr) at (-0.8,-2.8) {};
+		 
+	\node (lcInternal) at (-1,-2) {$t_1$};
+	\node (rcInternal) at (1,-2) {$t_2$};
+	
+	\node (lcLabel) at  (-3,-2) {$\hat{h}_1(r\up{2})=$};
+	\node (lcLabel) at  (3,-2) {$=\hat{h}_1(r\up{3})$};
+	
+	\node (rcRoot) at (0.5,-1.3) {};
+	\node (rcLeft)  at (0.5,-2.8) {};
+	\node (rcRight)  at (3.3,-2.8) {};
+	
+	\node (rcml) at (0.8,-2.8) {};
+	\node (rcmm) at (1.3,-2.3) {};
+	\node (rcmr) at (1.8,-2.8) {};
+		 
+	\node (x1) at (-1.3,-2.8) {$x_1$};
+	\node (x2) at (1.3,-2.8) {$x_1$};
+	
+	\path (lcRoot.center) edge (lcLeft.center);
+	\path (rcRoot.center) edge (rcLeft.center);
+	
+	\path (lcRoot.center) edge (lcRight.center);
+	\path (rcRoot.center) edge (rcRight.center);
+	
+	\path (lcLeft.center) edge (lcml.center);
+	\path (rcLeft.center) edge (rcml.center);
+		
+	\path (lcml.center) edge (lcmm.center);
+	\path (rcml.center) edge (rcmm.center);
+	
+	\path (lcmm.center) edge (lcmr.center);
+	\path (rcmm.center) edge (rcmr.center);
+	
+	\path (lcmr.center) edge (lcRight.center);
+	\path (rcmr.center) edge (rcRight.center);
+\end{tikzpicture}
+}
+\end{minipage}
+ &
+ \begin{minipage}{0.3 \textwidth}
+%\resizebox{1\columnwidth}{3cm}
+{
+\begin{tikzpicture}[scale=0.5, every node/.style={scale=0.5}]
+	\tikzset{decoration={snake,amplitude=1mm,segment length=5mm,
+	                       post length=1mm,pre length=1mm}}
+
+	 \node (image) at (-3,-1) {$h_2(r\up{1}) =$};
+
+	 \node (root) at (0,0) {};
+	 \node (left) at (-2,-2) {};
+	 \node (right) at (2,-2) {};
+	 
+	 \node (internalL) at (0,-1) {$t'$};
+	 
+	 \node (lml) at (-1.5,-2) {};
+	 \node (lmm) at (-1,-1.5) {};
+	 \node (lmr) at (-0.5,-2) {};
+	 
+	 \node (rml) at (0.5,-2) {};
+	 \node (rmm) at (1,-1.5) {};
+	 \node (rmr) at (1.5,-2) {};
+	 
+	 \node (x1) at (-1,-2) {$x_1$};
+	 \node (x2) at (1,-2) {$x_2$};
+
+	\path (root.center) edge node (cutL) [near start]{} (left.center) edge node (cutR) [near start] {}  (right.center);
+	\path (left.center) edge (lml.center);
+	\path (lml.center) edge (lmm.center);
+	\path (lmm.center) edge (lmr.center);
+	\path (lmr.center) edge node (cutB) [midway] {} (rml.center);
+	\path (rml.center) edge (rmm.center);
+	\path (rmm.center) edge (rmr.center);
+	\path (rmr.center) edge (right.center);
+	
+	\node (lcLabel) at  (-3,-2.5) {$\hat{h}_2(r\up{2})=$};
+	\node (x1) at (-1,-2.5) {$x_1$};
+	
+	\node (lcLabel) at  (3,-2.5) {$=\hat{h}_2(r\up{3})$};
+	\node (x2) at (1,-2.5) {$x_1$};
+\end{tikzpicture}
+}
+\end{minipage}
+\\
+\hline
+\end{tabular}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The general picture -- 1 Case}
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+& Selected Homomorphism & Unselected Homomorphisms \\
+\hline
+\parbox{0.1\textwidth}{Before} &
+\begin{minipage}{0.33 \textwidth}
+%\resizebox{1\columnwidth}{3cm}
+{
+\begin{tikzpicture}[scale=0.5, every node/.style={scale=0.5}]
+	\tikzset{decoration={snake,amplitude=1mm,segment length=5mm,
+	                       post length=1mm,pre length=1mm}}
+
+	 \node (image) at (-3,-1) {$h_1(r) =$};
+
+	 \node (root) at (0,0) {};
+	 \node (left) at (-3,-3) {};
+	 \node (right) at (3,-3) {};
+	 
+	 \node (top) at (0,-0.4) {f};
+	 \node (internalL) at (-0.75,-1.75) {$t_1$};
+	 \node (internalR) at (1.15,-1.75) {$t_2$};	  
+	 
+	 \node (lml) at (-2.6,-3) {};
+	 \node (lmm) at (-2.1,-2.5) {};
+	 \node (lmr) at (-1.6,-3) {};
+	 
+	 \node (rml) at (-1.1,-3) {};
+	 \node (rmm) at (-0.6,-2.5) {};
+	 \node (rmr) at (-0.1,-3) {};
+	 
+	 \node (x1) at (-2.1,-3) {$x_1$};
+	 \node (x2) at (-0.6,-3) {$x_2$};
+	 
+	 \node (it) at (0,-3) {};
+
+	\path (root.center) edge node (cutL) [near start]{} (left.center) edge node (cutR) [near start] {}  (right.center);
+	\path (left.center) edge (lml.center);
+	\path (lml.center) edge (lmm.center);
+	\path (lmm.center) edge (lmr.center);
+	\path (lmr.center) edge (rml.center);
+	\path (rml.center) edge (rmm.center);
+	\path (rmm.center) edge (rmr.center);
+	\path (rmr.center) edge node (cutB) [near start] {} (right.center);
+	\path (cutL.center) edge node (cutC) [midway] {} (cutR.center);
+	\path (cutC.center) edge (it.center);
+\end{tikzpicture}
+}
+\end{minipage}
+ &
+ \begin{minipage}{0.2 \textwidth}
+%\resizebox{1\columnwidth}{3cm}
+{
+\begin{tikzpicture}[scale=0.3, every node/.style={scale=0.5}]
+	\tikzset{decoration={snake,amplitude=1mm,segment length=5mm,
+	                       post length=1mm,pre length=1mm}}
+
+	 \node (image) at (-3,-1) {$h_2(r\up{1}) =$};
+
+	 \node (root) at (0,0) {};
+	 \node (left) at (-3,-3) {};
+	 \node (right) at (3,-3) {};
+	 
+	 \node (internalL) at (0,-1.75) {$t'$};
+	 
+	 \node (lml) at (-2,-3) {};
+	 \node (lmm) at (-1.5,-2.5) {};
+	 \node (lmr) at (-1,-3) {};
+	 
+	 \node (rml) at (1,-3) {};
+	 \node (rmm) at (1.5,-2.5) {};
+	 \node (rmr) at (2,-3) {};
+	 
+	 \node (x1) at (-1.5,-3) {$x_1$};
+	 \node (x2) at (1.5,-3) {$x_2$};
+
+	\path (root.center) edge node (cutL) [near start]{} (left.center) edge node (cutR) [near start] {}  (right.center);
+	\path (left.center) edge (lml.center);
+	\path (lml.center) edge (lmm.center);
+	\path (lmm.center) edge (lmr.center);
+	\path (lmr.center) edge node (cutB) [midway] {} (rml.center);
+	\path (rml.center) edge (rmm.center);
+	\path (rmm.center) edge (rmr.center);
+	\path (rmr.center) edge (right.center);
+\end{tikzpicture}
+}
+\end{minipage}
+\\
+\hline
+\parbox{0.1\textwidth}{After} &
+\begin{minipage}{0.33 \textwidth}
+%\resizebox{1\columnwidth}{3cm}
+{
+\begin{tikzpicture}[scale=0.5, every node/.style={scale=0.5}]
+	\tikzset{decoration={snake,amplitude=1mm,segment length=5mm,
+	                       post length=1mm,pre length=1mm}}
+
+	 \node (image) at (-3,-0.4) {$\hat{h}_1(r\up{1}) =$};
+
+	 \node (root) at (0,0) {};
+	 \node (left) at (-1.5,-1.5) {};
+	 \node (right) at (1.5,-1.5) {};
+	 
+	 \node (top) at (0,-0.4) {f};
+	 
+	 \node (lml) at (-1,-1.5) {};
+	 \node (lmm) at (-0.5,-1) {};
+	 \node (lmr) at (0,-1.5) {};
+	 
+	 \node (rml) at (0,-1.5) {};
+	 \node (rmm) at (0.5,-1) {};
+	 \node (rmr) at (1,-1.5) {};
+	 
+	 \node (x1) at (-0.5,-1) {$x_1$};
+	 \node (x2) at (0.5,-1) {$x_2$};
+	 
+	 \path (top) edge (x1) edge (x2); 
+
+	%\path (root.center) edge node (cutL) [near start]{} (left.center) edge node (cutR) [near start] {}  (right.center);
+	%\path (left.center) edge (lml.center);
+	%\path (lml.center) edge (lmm.center);
+	%\path (lmm.center) edge (lmr.center);
+	%\path (rml.center) edge (rmm.center);
+	%\path (rmm.center) edge (rmr.center);
+	%\path (rmr.center) edge (right.center);
+	%\path (lmr.center) edge (rml.center);
+	
+	\node (lcRoot) at (-0.5,-1.8) {};
+	\node (lcLeft)  at (-3.3,-3.3) {};
+	\node (lcRight)  at (-0.5,-3.3) {};
+	
+	\node (lcml) at (-2.7,-3.3) {};
+	\node (lcmm) at (-2.2,-2.8) {};
+	\node (lcmr) at (-1.7,-3.3) {};
+		 
+	\node (lcInternal) at (-1,-2.5) {$t_1$};
+	\node (rcInternal) at (1,-2.5) {$t_2$};
+	
+	\node (lcLabel) at  (-3,-2.5) {$\hat{h}_1(r\up{2})=$};
+	\node (lcLabel) at  (3,-2.5) {$=\hat{h}_1(r\up{3})$};
+	
+	\node (rcRoot) at (0.5,-1.8) {};
+	\node (rcLeft)  at (0.5,-3.3) {};
+	\node (rcRight)  at (3.3,-3.3) {};
+	
+	\node (rcml) at (-1.6,-3.3) {};
+	\node (rcmm) at (-1.1,-2.8) {};
+	\node (rcmr) at (-0.6,-3.3) {};
+		 
+	\node (x1) at (-2.2,-3.3) {$x_1$};
+	\node (x2) at (-1.1,-3.3) {$x_2$};
+	
+	\path (lcRoot.center) edge (lcLeft.center);
+	\path (rcRoot.center) edge (rcLeft.center);
+	
+	\path (lcRoot.center) edge (lcRight.center);
+	\path (rcRoot.center) edge (rcRight.center);
+	
+	\path (lcLeft.center) edge (lcml.center);
+	\path (rcLeft.center) edge (rcRight.center);
+		
+	\path (lcml.center) edge (lcmm.center);
+	\path (rcml.center) edge (rcmm.center);
+	
+	\path (lcmm.center) edge (lcmr.center);
+	\path (rcmm.center) edge (rcmr.center);
+	
+	\path (lcmr.center) edge (rcml.center);
+	\path (rcmr.center) edge (lcRight.center);
+\end{tikzpicture}
+}
+\end{minipage}
+ &
+ \begin{minipage}{0.23 \textwidth}
+%\resizebox{1\columnwidth}{3cm}
+{
+\begin{tikzpicture}[scale=0.5, every node/.style={scale=0.5}]
+	\tikzset{decoration={snake,amplitude=1mm,segment length=5mm,
+	                       post length=1mm,pre length=1mm}}
+
+	 \node (image) at (-2,0.5) {$h_2(r\up{1}) =$};
+	 \node (image) at (-2,-1) {$h_2(r\up{2}) =$};
+
+	 \node (point) at (0,0.5) {$x_1$};
+
+	 \node (root) at (0,0) {};
+	 \node (left) at (-2,-2) {};
+	 \node (right) at (2,-2) {};
+	 
+	 \node (internalL) at (0,-1) {$t'$};
+	 
+	 \node (lml) at (-1.5,-2) {};
+	 \node (lmm) at (-1,-1.5) {};
+	 \node (lmr) at (-0.5,-2) {};
+	 
+	 \node (rml) at (0.5,-2) {};
+	 \node (rmm) at (1,-1.5) {};
+	 \node (rmr) at (1.5,-2) {};
+	 
+	 \node (x1) at (-1,-2) {$x_1$};
+	 \node (x2) at (1,-2) {$x_2$};
+
+	\path (root.center) edge node (cutL) [near start]{} (left.center) edge node (cutR) [near start] {}  (right.center);
+	\path (left.center) edge (lml.center);
+	\path (lml.center) edge (lmm.center);
+	\path (lmm.center) edge (lmr.center);
+	\path (lmr.center) edge node (cutB) [midway] {} (rml.center);
+	\path (rml.center) edge (rmm.center);
+	\path (rmm.center) edge (rmr.center);
+	\path (rmr.center) edge (right.center);
+	
+	\node (lcLabel) at  (3,-1) {$=\hat{h}_1(r\up{3})$};
+	\node (x2) at (2,-1) {$\top$};
+\end{tikzpicture}
+}
+\end{minipage}
+\\
+\hline
+\end{tabular}
+\end{frame}
 
 
-
-%\subsection{Invers homomorphism problem}
-
-%\begin{frame}
-%  \frametitle{?}
-%\end{frame}
-
-%\section{Solution sketch & further motivations}
-
-%\section{Truncation Step}
+\section{Consequences}
 
 
+\section{Conclusion}
 
-
-
-%\begin{frame}
 
 \end{document}
