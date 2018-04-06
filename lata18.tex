@@ -83,6 +83,16 @@
   \end{itemize}
 \end{frame}
 
+\begin{frame}{Further motivation from C.L.}
+  \begin{itemize}
+  \item In Computational Linguistics, one commonly deals with very large FTAs (millions of rules).
+  \item Knowing whether the shape of homomorphisms induce a complexity overhead is therefore a pressing issue.
+  \item For a range of known formalisms encodable as IRTGs, translation complexity has been obversed to be exactly the complexity of algebraic decomposition.
+  \item Does this generalize?
+  \item If I design a new grammatical formalism using IRTGs and a known algebra, can I immediately conclude to a complexity upper bound?
+  \end{itemize}
+\end{frame}
+
 \section{Bimorphisms, IRTG and translation.}
 
 \begin{frame}
@@ -113,7 +123,7 @@
         $
         \begin{aligned}
           & r_a(x_1, x_2) \mapsto^{h_1} \cdot(\texttt{v}, \cdot(\cdot(\cdot(x_1, {+}), x_2) , \texttt{v}))\\
-          & r_m(x_1, x_2)) \mapsto^{h_1} \cdot(\cdot(x_1, {\times}), x_2)\\
+          & r_m(x_1, x_2) \mapsto^{h_1} \cdot(\cdot(x_1, {\times}), x_2)\\
           & i \rightarrow i
         \end{aligned}
         $ 
@@ -162,7 +172,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Translation problems}
+  \frametitle{Translation problems.}
 
   \begin{block}{For a bimorphism $\langle G, h_1, h_2 \rangle$}
     Given as input a finite tree automaton (FTA) $F$, compute (a compact representation of)
@@ -188,9 +198,7 @@
     \end{enumerate}
   \item  \alert{Can we express the complexity of this procedure in terms of $|D_o|$ only?}
   \item Parsing and recognazibility problems definable and reducible to translation.
-  \end{itemize}
-
-  
+  \end{itemize}  
 \end{frame}
 
 \section{Cost of the invhom.}
@@ -203,7 +211,7 @@
         $
         \begin{aligned}
           & r_a(x_1, x_2) \mapsto^{h_1} \cdot(\texttt{v}, \cdot(\cdot(\cdot(x_1, {+}), x_2) , \texttt{v}))\\
-          & r_m(x_1, x_2)) \mapsto^{h_1} \cdot(\cdot(x_1, {\times}), x_2)\\
+          & r_m(x_1, x_2) \mapsto^{h_1} \cdot(\cdot(x_1, {\times}), x_2)\\
           & i \rightarrow i
         \end{aligned}
         $ 
@@ -299,7 +307,7 @@
   \]
 
   \begin{itemize}
-  \item Recall $r_m(x_1, x_2)) \mapsto^{h_1} \cdot(\cdot(x_1, {\times}), x_2)$.
+  \item Recall $r_m(x_1, x_2) \mapsto^{h_1} \cdot(\cdot(x_1, {\times}), x_2)$.
   \item We have $S \rightarrow^{*}_{F} \cdot(\cdot(N_i, {\times}), N_j)$ for $i,j \in [1,n]$.
   \item Hence we add $S \rightarrow r_m(N_i, N_j)$ to the invhom for $i,j \in [1,n]$.
   \item \alert{$O(n^2)$ rules v.s. $O(n)$ rules for $F$!}.
@@ -319,7 +327,7 @@
         $
         \begin{aligned}
           & r_a(x_1, x_2) \mapsto^{h_1} \cdot(\texttt{v}, \cdot(\cdot(\cdot(x_1, {+}), x_2) , \texttt{v}))\\
-          & r_m(x_1, x_2)) \mapsto^{h_1} \cdot(\cdot(x_1, {\times}), x_2)\\
+          & r_m(x_1, x_2) \mapsto^{h_1} \cdot(\cdot(x_1, {\times}), x_2)\\
           & i \rightarrow i
         \end{aligned}
         $ 
@@ -378,7 +386,7 @@
   We build on the following:
   \begin{enumerate}
   \item Solutions to the translation problem are invariant through weak-equivalence $\rightarrow$ one can transform the grammar.
-  \item If all homomorphic images $h(l)$ have height at most $1$ , it is trivial that the standard construction of the invhom $h^-1(L(F))$ has at most as many rules as $F$.
+  \item If all homomorphic images $h(l)$ have height at most $1$ , it is trivial that the standard construction of the invhom $h^{-1}(L(F))$ has at most as many rules as $F$.
   \end{enumerate}
 \end{frame}
 
@@ -404,7 +412,7 @@
 
   \begin{itemize}
   \item The procedure consists in an elementary truncation step applied until saturation.
-  \item Each truncation step targets a single homomorphism $h$ and a single label $r$.
+  \item Each truncation step targets a single homomorphism $h$ and a single rule $r$ with an homomorphic image of height $ > 1$.
   \item The truncation step `splits' $r$ and into several `fresh' labels, adding corresponding rules to the grammar.
   \item $h(r)$ is distributed over the new label thereby lessening the maximal images' height.
   \item One need to carefully adapt other homomorphisms, to prevent modifying the translation relation.
@@ -413,10 +421,221 @@
 
 \begin{frame}
   \frametitle{Example -- 2 case}
+  
+  \begin{center}
+    \begin{minipage}{0.49\linewidth}
+      \[
+        \begin{aligned}
+          &E \rightarrow r_{a}(E,E) \quad \underbrace{E \rightarrow r_{m}(E,E)}_{{\color{blue} \cdot ({\color{red}\cdot(x_1, {\times})}, {\color{darkgreen}x_2})}}\\
+          &E \rightarrow 1 \mid \dots \mid n\\
+      \end{aligned}
+      \]
+    \end{minipage}
+    \begin{minipage}{0.49\linewidth}
+      \begin{forest}
+        [$r_{m}$ [ $r_{a}$ [$1$] [$2$]]  [$3$] ]
+      \end{forest}
+    \end{minipage}
+  \end{center}
+  
+    \begin{itemize}
+    \item Target $r_{m}$ and $h_1$.
+    \end{itemize}
+
+    \begin{center}
+    \begin{minipage}{0.49\linewidth}
+      \[
+        \begin{aligned}
+          &E \rightarrow r_{a}(E,E) \\
+          &\underbrace{E \rightarrow r^1_{m}(M^2,M^3)}_{\color{blue}\cdot(x_1, x_2)}\\
+          &\underbrace{M^2 \rightarrow r_m^2(E)}_{{\color{red}\cdot(x_1, {\times})}} \quad \underbrace{M^3 \rightarrow r_m^3(E)}_{\color{darkgreen} x_1}\\
+          &E \rightarrow 1 \mid \dots \mid n\\
+      \end{aligned}
+      \]
+    \end{minipage}
+    \begin{minipage}{0.49\linewidth}
+      \begin{forest}
+        [$r^1_{m}$ [ $r^2_m$ [ $r_{a}$ [$1$] [$2$]] ]  [ $r^3_m$ [$3$]] ]
+      \end{forest}
+    \end{minipage}
+    \end{center}    
+\end{frame}
+
+\begin{frame}
+  \frametitle{What about the untargeted $h_2$?}
+  
+  \begin{center}
+    \begin{minipage}{0.49\linewidth}
+      \[
+        \begin{aligned}
+          &E \rightarrow r_{a}(E,E) \quad \overbrace{E \rightarrow r_{m}(E,E)}^{{\color{blue} \texttt{mult}(x_1, x_2)}}\\
+          &E \rightarrow 1 \mid \dots \mid n\\
+      \end{aligned}
+      \]
+    \end{minipage}
+    \begin{minipage}{0.49\linewidth}
+      \begin{forest}
+        [$r_{m}$ [ $r_{a}$ [$1$] [$2$]]  [$3$] ]
+      \end{forest}
+    \end{minipage}
+  \end{center}
+  
+    \begin{itemize}
+    \item Move the whole image to $r_m^1$ which references both children.
+    \end{itemize}
+
+    \begin{center}
+    \begin{minipage}{0.49\linewidth}
+      \[
+        \begin{aligned}
+          &E \rightarrow r_{a}(E,E) \\
+          &\overbrace{E \rightarrow r^1_{m}(M^2,M^3)}^{{\color{blue} \texttt{mult}(x_1, x_2)}}\\
+          &\overbrace{M^2 \rightarrow r_m^2(E)}^{ x_1} \quad \overbrace{M^3 \rightarrow r_m^3(E)}^{x_1}\\
+          &E \rightarrow 1 \mid \dots \mid n\\
+      \end{aligned}
+      \]
+    \end{minipage}
+    \begin{minipage}{0.49\linewidth}
+      \begin{forest}
+        [$r^1_{m}$ [ $r^2_m$ [ $r_{a}$ [$1$] [$2$]] ]  [ $r^3_m$ [$3$]] ]
+      \end{forest}
+    \end{minipage}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Transformation so far:}
+  \begin{center}
+  \fontsize{6}{7}      
+  \begin{minipage}{0.1\linewidth}
+    $\texttt{v} 1 + 2\texttt{v} \times 3$
+  \end{minipage}
+  $\xleftarrow{\llbracket \cdot \rrbracket_{\Sigma^{\ast}}}$
+  \begin{minipage}{0.18\linewidth}
+    \centering
+    \begin{forest}
+      [$\cdot$, blue [$\cdot$, red, edge=blue [ $\cdot$, edge=red [ \texttt{v} ] [$\cdot$ [$\cdot$ [$\cdot$ [1] [+]] [2] ] [\texttt{v}] ]  ] [ $\times$, red, edge=red] ] [3, edge=blue] ]
+    \end{forest}
+  \end{minipage}
+  $\xleftarrow{h_1}$      
+  \begin{minipage}{0.1\linewidth}
+    \centering
+    \begin{forest}
+      [$r^1_{m}$, blue [ $r^2_{m}$, red, edge=blue  [$r_{a}$, edge=red [$1$] [$2$]]] [$r^3_{m}$, darkgreen, edge=blue [$3$, edge=darkgreen]]] 
+    \end{forest}
+  \end{minipage}
+  $\xrightarrow{h_2}$
+  \begin{minipage}{0.18\linewidth}
+      	\centering
+      	\begin{forest}
+      	  [\texttt{mul}, blue [ \texttt{add}, edge=blue [$1$] [$2$] ]  [$3$, edge=blue] ]
+      	\end{forest}
+  \end{minipage}
+  $\xrightarrow{\llbracket \cdot \rrbracket_{\mathbb{N}}}$
+  \begin{minipage}{0.05\linewidth}
+    \centering
+    $9$
+  \end{minipage}
+  \end{center}
 \end{frame}
 
 \begin{frame}
   \frametitle{Example -- 1 case}
+  
+    \begin{minipage}{0.49\linewidth}
+      \[
+      \begin{aligned}
+        &\underbrace{E \rightarrow r_{a}(E,E)}_{{\color{blue} \cdot({\color{red} \texttt{v}}, {\color{darkgreen} \cdot(\cdot(\cdot(x_1, {+}), x_2) , \texttt{v})})}}\\
+      \end{aligned}
+      \]
+    
+    \begin{itemize}
+    \item Target $r_{m}$ and $h_1$.
+    \end{itemize}
+
+   
+      \[
+      \begin{aligned}
+        &\underbrace{E \rightarrow r^1_{a}(A^2, A^3)}_{\color{blue}\cdot(x_1, x_2)}\\
+        &\underbrace{A^2 \rightarrow r_a^2}_{{\color{red}\texttt{v}}} \quad \underbrace{A^3 \rightarrow r_a^3(E, E)}_{{\color{darkgreen} \cdot(\cdot(\cdot(x_1, {+}), x_2) , \texttt{v})}}\\
+      \end{aligned}
+      \]
+    \end{minipage}
+    \begin{minipage}{0.49\linewidth}
+      \begin{center}
+        \begin{forest}
+          [$r^1_{m}$ [ $r^2_m$ [$r^1_{a}$ [$r^2_a$] [$r^3_a$ [$1$] [$2$]] ]] [$r^3_m$ [$3$]] ]
+        \end{forest}
+      \end{center}
+  \end{minipage}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Untargetted homomorphism $h_2$}
+  
+    \begin{minipage}{0.49\linewidth}
+      \[
+      \begin{aligned}
+        &\overbrace{\underbrace{E \rightarrow r_{a}(E,E)}_{{\color{blue} \cdot({\color{red} \texttt{v}}, {\color{darkgreen} \cdot(\cdot(\cdot(x_1, {+}), x_2) , \texttt{v})})}}}^{{\color{darkgreen} \texttt{add}(x_1, x_2) }}\\
+      \end{aligned}
+      \]
+    
+    \begin{itemize}
+    \item Again, affect the whole image to rule referencing both children, here, $r_a^3$.
+    \end{itemize}
+
+   
+      \[
+      \begin{aligned}
+        &\overbrace{\underbrace{E \rightarrow r^1_{a}(A^2, A^3)}_{\color{blue}\cdot(x_1, x_2)}}^{x_2}\\
+        &\overbrace{\underbrace{A^2 \rightarrow r_a^2}_{{\color{red}\texttt{v}}}}^{\bot} \quad \overbrace{\underbrace{A^3 \rightarrow r_a^3(E, E)}_{{\color{darkgreen} \cdot(\cdot(\cdot(x_1, {+}), x_2) , \texttt{v})}}}^{{\color{darkgreen} \texttt{add}(x_1, x_2)}}\\
+      \end{aligned}
+      \]
+    \end{minipage}
+    \begin{minipage}{0.49\linewidth}
+      \begin{center}
+        \begin{forest}
+          [$r^1_{m}$ [ $r^2_m$ [$r^1_{a}$ [$r^2_a$] [$r^3_a$ [$1$] [$2$]] ]] [$r^3_m$ [$3$]] ]
+        \end{forest}
+      \end{center}
+  \end{minipage}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Transformation so far:}
+  \begin{center}
+  \fontsize{6}{7}      
+  \begin{minipage}{0.1\linewidth}
+    $\texttt{v} 1 + 2\texttt{v} \times 3$
+  \end{minipage}
+  $\xleftarrow{\llbracket \cdot \rrbracket_{\Sigma^{\ast}}}$
+  \begin{minipage}{0.18\linewidth}
+    \centering
+    \begin{forest}
+      [$\cdot$, [$\cdot$ [ $\cdot$, blue [ \texttt{v}, red, edge=blue ] [$\cdot$, darkgreen, edge=blue [$\cdot$, darkgreen, edge=darkgreen [$\cdot$, darkgreen, edge=darkgreen [1, edge=darkgreen] [+, darkgreen, edge=darkgreen]] [2, edge=darkgreen] ] [\texttt{v}, darkgreen, edge=darkgreen] ]  ] [ $\times$] ] [3] ]
+    \end{forest}
+  \end{minipage}
+  $\xleftarrow{h_1}$      
+  \begin{minipage}{0.1\linewidth}
+    \centering
+    \begin{forest}
+       [$r^1_{m}$ [ $r^2_m$ [$r^1_{a}$, blue [$r^2_a$, red, edge=blue] [$r^3_a$, darkgreen, edge=blue [$1$, edge=darkgreen] [$2$, edge=darkgreen]] ]] [$r^3_m$ [$3$]] ]
+    \end{forest}
+  \end{minipage}
+  $\xrightarrow{h_2}$
+  \begin{minipage}{0.18\linewidth}
+      	\centering
+      	\begin{forest}
+      	  [\texttt{mul} [ \texttt{add}, darkgreen [$1$, edge=darkgreen] [$2$, edge=darkgreen] ]  [$3$] ]
+      	\end{forest}
+  \end{minipage}
+  $\xrightarrow{\llbracket \cdot \rrbracket_{\mathbb{N}}}$
+  \begin{minipage}{0.05\linewidth}
+    \centering
+    $9$
+  \end{minipage}
+  \end{center}
 \end{frame}
 
 \begin{frame}
@@ -866,8 +1085,51 @@
 
 \section{Consequences}
 
+\begin{frame}
+  \frametitle{Main consequences:}
+\begin{itemize}
+\item Any bimorphism/IRTG with linear homorphism and binary signatures can be brought to TNF.
+\end{itemize}
+
+\begin{block}{Thm}
+  The translation problem for an $LB$ bimorphism is at most linear in the size of the input FTA $F$.
+\end{block}
+
+\begin{block}{Thm}
+  Linear homomorphisms over binary signatures do not induce an overhead in parsing/translation time: if an IRTG is based on an $LB$ bimorphism, then an input object $o$ can be translated in time $|D_o|$, if $D_o$ is a decomposition automaton for $o$.
+\end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Further remarks:}
+Moreover:
+\begin{itemize}
+\item TNF reduction is adaptable to the weighted case.
+\item Bringing an IRTG into TNF takes time (hence space) proportional to the size of the original IRTG.
+\item In C.L., one almost always relies on 'known' algebras for which the cost of decomposition is known.
+\item Hence, one can immediately conclude to a parsing/translation complexity upper bound, for any new formalism encoded as an IRTG using such an algebra and $LB$-bimorphisms.
+\item TNF reduction can be combined with existing binarization procedures. 
+\end{itemize}
+\end{frame}
+
+
 
 \section{Conclusion}
 
+\begin{frame}
+  \frametitle{Conclusion and perspectives.}
+  \begin{itemize}
+  \item A truncated normal form for $LB$ bimorphisms and IRTG based on these.
+  \item Yields a complexity result on translating with $LB$-bimorphisms.
+  \item As a corrolary, IRTGs based on $LB$ bimorphisms have complexity upper bound depending on the input algebra only.
+  \end{itemize}
+
+  Research perspectives:
+  \begin{itemize}
+  \item TNF reduces the search space for grammar induction (learning a weighted IRTG).
+  \item Could yield more efficient parsing strategies (\emph{e.g.}, greedy statistical parsers).
+  \end{itemize}
+\end{frame}
+ 
 
 \end{document}
