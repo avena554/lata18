@@ -68,31 +68,6 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}
-  \frametitle{The program.}
-  \begin{itemize}
-  \item The image of a regular language through a bimorphism can be computed.
-  \item \alert{But how efficiently can this be done, w.r.t. different shapes of homomorphisms?}
-  \item Also forms the basis of a generic 2-step algorithm to translate an input object using an IRTG:
-    \begin{enumerate}
-    \item Find the set of algebraic decompositions of the input object.
-    \item Translate this set of decompositions through the underlying bimorphism.
-    \end{enumerate}
-  \item \alert{step 1. is the algebra-dependent part. Can step 2 add to the general complexity of translating?}
-  \item We answer these questions for the class of bimorphisms with \emph{linear} homomorphisms over \emph{binary} signatures.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Further motivation from C.L.}
-  \begin{itemize}
-  \item In Computational Linguistics, one commonly deals with very large FTAs (millions of rules).
-  \item Knowing whether the shape of homomorphisms induce a complexity overhead is therefore a pressing issue.
-  \item For a range of known formalisms encodable as IRTGs, translation complexity has been obversed to be exactly the complexity of algebraic decomposition.
-  \item Does this generalize?
-  \item If I design a new grammatical formalism using IRTGs and a known algebra, can I immediately conclude to a complexity upper bound?
-  \end{itemize}
-\end{frame}
-
 \section{Bimorphisms, IRTG and translation.}
 
 \begin{frame}
@@ -169,6 +144,31 @@
       	$9$
       \end{minipage}
     \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The program.}
+  \begin{itemize}
+  \item The image of a regular language through a bimorphism can be computed.
+  \item \alert{But how efficiently can this be done, w.r.t. different shapes of homomorphisms?}
+  \item Also forms the basis of a generic 2-step algorithm to translate an input object using an IRTG:
+    \begin{enumerate}
+    \item Find the set of algebraic decompositions of the input object.
+    \item Translate this set of decompositions through the underlying bimorphism.
+    \end{enumerate}
+  \item \alert{step 1. is the algebra-dependent part. Can step 2 add to the general complexity of translating?}
+  \item We answer these questions for the class of bimorphisms with \emph{linear} homomorphisms over \emph{binary} signatures ($LB$-bimorphisms).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Further motivation from C.L.}
+  \begin{itemize}
+  \item In Computational Linguistics, one commonly deals with very large FTAs (millions of rules).
+  \item Knowing whether the shape of homomorphisms induce a complexity overhead is therefore a pressing issue.
+  \item For a range of known formalisms encodable as IRTGs, translation complexity has been obversed to be exactly the complexity of algebraic decomposition.
+  \item Does this generalize?
+  \item If I design a new grammatical formalism using IRTGs and a known algebra, can I immediately conclude to a complexity upper bound?
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -462,7 +462,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{What about the untargeted $h_2$?}
+  \frametitle{What about the unselected $h_2$?}
   
   \begin{center}
     \begin{minipage}{0.49\linewidth}
@@ -572,7 +572,7 @@
 
 
 \begin{frame}
-  \frametitle{Untargetted homomorphism $h_2$}
+  \frametitle{Unselected homomorphism $h_2$}
   
     \begin{minipage}{0.49\linewidth}
       \[
