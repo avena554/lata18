@@ -47,7 +47,7 @@
 \begin{document}
 
 \title{Efficient Translation with Linear Bimorphisms} 
-\author[Antoine Venant]{Christoph Teichmann \and Antoine Venant \and Alexander Koller}
+\author[Antoine Venant]{Christoph Teichmann \and \underline{Antoine Venant} \and Alexander Koller}
 \institute{Saarland University}
 \date{\today}
 \maketitle
@@ -56,28 +56,50 @@
 \section{Introduction}
 
 \begin{frame}
-  \frametitle{What this talk is about -- Bimorphisms and IRTG}
+  \frametitle{General grammatical frameworks}
   \begin{itemize}
-  \item \textbf{Bimorphisms} offer a succint way to represent relation between trees.
-  %\item Model syntax-based relations between objects.
-  \item Two trees are related when both are homomorphic images of a common third one under two fixed distinct homomorphisms.
-  %\item Admissible derivation trees are compactly specified as a regular tree language.
-  \item Interpreting tree nodes as algebraic operations, one can represent relations between objects of arbitrary nature.
-  \item This yields \textbf{IRTG}s -- Interpreted Regular Tree Grammars.
-  \item IRTGs offer a common theoretical foundation to a wide range of grammatic formalisms relevant to Computational Linguistics.
+  \item Bringing different grammar formalisms within a common framework makes analyses and comparison easier.
+  \item Makes common structure and differences explicit.
+  \item Enable stating generic facts about grammar formalisms.  
+  \item Particularly salient in computational linguistics (C.L.), given the variety of (synchronous) grammars and transducers.
+  \item One desirable theoretical benefit: generic parsing (translation) complexity bounds.
+  \item Use generic parsing/translation algorithm accross formalisms.
   \end{itemize}
 \end{frame}
+
+\begin{frame}
+  \frametitle{The program}
+  \begin{itemize}
+  \item Brief overview of Interpreted Regular Tree Grammar (IRTG) [Koller \& Kuhlmann, '11], which offers such a general framework.
+  \item Review the generic parsing algorithm and identify factors preventing a generic complexity analyses.
+  \item Highlight the complexity problem.
+  \item Solve the problem by reducing the grammar to specific kind of normal form, for which the complexity analysis is straightforward.
+  \end{itemize}
+\end{frame}
+
+%\begin{frame}
+%  \frametitle{What this talk is about -- Bimorphisms and IRTG}
+%  \begin{itemize}
+%  \item \textbf{Bimorphisms} offer a succint way to represent relation between trees.
+%  %\item Model syntax-based relations between objects.
+%  \item Two trees are related when both are homomorphic images of a common third one under two fixed distinct homomorphisms.
+%  %\item Admissible derivation trees are compactly specified as a regular tree language.
+%  \item Interpreting tree nodes as algebraic operations, one can represent relations between objects of arbitrary nature.
+%  \item This yields \textbf{IRTG}s -- Interpreted Regular Tree Grammars.
+%  \item IRTGs offer a common theoretical foundation to a wide range of grammatic formalisms relevant to Computational Linguistics.
+%  \end{itemize}
+%\end{frame}
 
 \section{Bimorphisms, IRTG and translation.}
 
 \begin{frame}
-  \frametitle{An example grammar and derivation.}
+  \frametitle{An example regular tree grammar and derivation.}
   \begin{center}
     \begin{minipage}{0.49\linewidth}
     \[
     \overbrace{
       \begin{aligned}
-        &E \rightarrow r_{a}(E,E) \quad E \rightarrow r_{m}(E,E)\\
+        &E \rightarrow r_{a}(E,E) \\& E \rightarrow r_{m}(E,E)\\
         &E \rightarrow 1 \mid \dots \mid n\\
     \end{aligned}}^{G}
     \]
@@ -1117,7 +1139,7 @@ Moreover:
 \section{Conclusion}
 
 \begin{frame}
-  \frametitle{Conclusion and perspectives.}
+  \frametitle{Conclusion and future directions.}
   \begin{itemize}
   \item A truncated normal form for $LB$ bimorphisms and IRTG based on these.
   \item Yields a complexity result on translating with $LB$-bimorphisms.
